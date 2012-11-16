@@ -1,5 +1,12 @@
 0.18 (Unknown)
 =================
+
+- Add process options to eventlisteners so you can for example delay them. 
+  [fredvd]
+
+- Fix doctests, pin supervisor and superlance in the doctests
+  [fredvd]
+  
 - Add support for setting user, directory and environment options of 
   supervisord
   [anthonygerrard]

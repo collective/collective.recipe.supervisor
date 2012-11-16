@@ -145,6 +145,7 @@ class Recipe(object):
                             if e]
 
         pattern = re.compile("(?P<processname>[^\s]+)"
+                             "(\s+\((?P<processopts>([^\)]+))\))?"
                              "\s+"
                              "(?P<events>[^\s]+)"
                              "\s+"
@@ -157,7 +158,17 @@ class Recipe(object):
                 raise ValueError("Event Listeners line incorrect: %s" % eventlistener)
 
             parts = match.groupdict()
+            process_options = parts.get('processopts')
+            extras = []
 
+            if process_options:
+                for part in process_options.split():
+                    if part.find('=') == -1:
+                        continue
+                    (key, value) = part.split('=',1)
+                    if key and value:
+                        extras.append( "%s = %s" % (key, value) )
+                        
             config_data += EVENTLISTENER_TEMPLATE % \
                            dict(name = parts.get('processname'),
                                 events = parts.get('events'),
@@ -166,6 +177,7 @@ class Recipe(object):
                                 user = user,
                                 password = password,
                                 serverurl = serverurl,
+                                extra_config = "\n".join( extras ),
                            )
 
         # groups
@@ -314,6 +326,7 @@ command = %(command)s %(args)s
 events = %(events)s
 process_name=%(name)s
 environment=SUPERVISOR_USERNAME='%(user)s',SUPERVISOR_PASSWORD='%(password)s',SUPERVISOR_SERVER_URL='%(serverurl)s'
+%(extra_config)s
 """
 
 GROUP_TEMPLATE = """
