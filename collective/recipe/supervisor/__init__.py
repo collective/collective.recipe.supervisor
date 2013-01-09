@@ -12,6 +12,13 @@ class Recipe(object):
     def __init__(self, buildout, name, options):
         self.buildout, self.name, self.options = buildout, name, options
 
+        if self.options.get('supervisord-conf') is None:
+            self.options['supervisord-conf'] = os.path.join(
+                self.buildout['buildout']['parts-directory'],
+                self.name,
+                'supervisord.conf',
+                )
+
     def install(self):
         """Installer"""
         # XXX Implement recipe functionality here
@@ -42,7 +49,7 @@ class Recipe(object):
         umask = self.options.get('umask', '022')
         nodaemon = self.options.get('nodaemon', 'false')
         nocleanup = self.options.get('nocleanup', 'false')
-        
+
         def option_setting(options, key, supervisor_key):
             return options.get(key, False) \
                 and ('%s = %s' % (supervisor_key, options.get(key))) \
@@ -119,14 +126,14 @@ class Recipe(object):
             extras = []
 
             if program_user:
-                extras.append( 'user = %s' % program_user )
+                extras.append('user = %s' % program_user)
             if process_options:
                 for part in process_options.split():
                     if part.find('=') == -1:
                         continue
-                    (key, value) = part.split('=',1)
+                    (key, value) = part.split('=', 1)
                     if key and value:
-                        extras.append( "%s = %s" % (key, value) )
+                        extras.append("%s = %s" % (key, value))
 
             config_data += PROGRAM_TEMPLATE % \
                            dict(program = parts.get('processname'),
@@ -137,7 +144,7 @@ class Recipe(object):
                                 directory = parts.get('directory') or \
                                          os.path.dirname(parts.get('command')),
                                 args = parts.get('args') or '',
-                                extra_config = "\n".join( extras ),
+                                extra_config = "\n".join(extras),
                            )
 
         # eventlisteners
@@ -165,10 +172,10 @@ class Recipe(object):
                 for part in process_options.split():
                     if part.find('=') == -1:
                         continue
-                    (key, value) = part.split('=',1)
+                    (key, value) = part.split('=', 1)
                     if key and value:
-                        extras.append( "%s = %s" % (key, value) )
-                        
+                        extras.append("%s = %s" % (key, value))
+
             config_data += EVENTLISTENER_TEMPLATE % \
                            dict(name = parts.get('processname'),
                                 events = parts.get('events'),
@@ -177,7 +184,7 @@ class Recipe(object):
                                 user = user,
                                 password = password,
                                 serverurl = serverurl,
-                                extra_config = "\n".join( extras ),
+                                extra_config = "\n".join(extras),
                            )
 
         # groups
@@ -206,51 +213,61 @@ class Recipe(object):
         files = [f for f in self.options.get('include', '').splitlines() if f]
         if files:
             stringfiles = " ".join(files)
-            config_data+= INCLUDE_TEMPLATE %\
-                          dict(stringfiles=stringfiles,
-                              )
+            config_data += INCLUDE_TEMPLATE % \
+                           dict(stringfiles=stringfiles,
+                                )
 
-        conf_file = os.path.join(self.buildout['buildout']['parts-directory'],
-                                 self.name, 'supervisord.conf')
-        if self.options.get('supervisord-conf', None) is not None:
-            conf_file = self.options.get('supervisord-conf')
+        conf_file = self.options.get('supervisord-conf')
+
         if not os.path.exists(os.path.dirname(conf_file)):
             os.makedirs(os.path.dirname(conf_file))
 
         open(conf_file, 'w').write(config_data)
 
-        dscript = zc.recipe.egg.Egg(self.buildout,
-              self.name,
-              {'eggs': 'supervisor',
-               'scripts': 'supervisord=%sd' % self.name,
-               'initialization': 'import sys; sys.argv.extend(["-c","%s"])' % \
-                                  conf_file})
+        return self._install_scripts()
 
-        memscript = zc.recipe.egg.Egg(self.buildout,
-              self.name,
-              {'eggs': 'supervisor',
-               'scripts': 'memmon=memmon',})
+    def _install_scripts(self):
+        conf_file = self.options.get('supervisord-conf')
 
-        init = '["-c","%s"]' % \
-                (conf_file,)
+        init_stmt = 'import sys; sys.argv.extend(["-c","%s"])' % \
+            (conf_file,)
+        dscript = zc.recipe.egg.Egg(
+            self.buildout,
+            self.name,
+            {'eggs': 'supervisor',
+             'scripts': 'supervisord=%sd' % self.name,
+             'initialization': init_stmt,
+             })
 
-        ctlscript = zc.recipe.egg.Egg(self.buildout,
-                    self.name,
-                    {'eggs': 'supervisor',
-                     'scripts': 'supervisorctl=%sctl' % self.name,
-                     'initialization': 'import sys; sys.argv[1:1] = %s' % init,
-                     'arguments': 'sys.argv[1:]'})
+        memscript = zc.recipe.egg.Egg(
+            self.buildout,
+            self.name,
+            {'eggs': 'supervisor',
+             'scripts': 'memmon=memmon',
+             })
+
+        init_stmt = 'import sys; sys.argv[1:1] = ["-c","%s"]' % \
+            (conf_file,)
+        ctlscript = zc.recipe.egg.Egg(
+            self.buildout,
+            self.name,
+            {'eggs': 'supervisor',
+             'scripts': 'supervisorctl=%sctl' % self.name,
+             'initialization': init_stmt,
+             'arguments': 'sys.argv[1:]',
+             })
 
         #install extra eggs if any
         eggs = self.options.get('plugins', '')
 
         extra_eggs = []
         if eggs:
-            extra_eggs = list(zc.recipe.egg.Egg(self.buildout,
-                                                self.name,
-                                                {'eggs':eggs}).install())
-
-
+            extra_eggs = list(
+                zc.recipe.egg.Egg(
+                    self.buildout,
+                    self.name,
+                    {'eggs': eggs,
+                     }).install())
 
         return list(dscript.install()) + \
                list(memscript.install()) + \
@@ -260,7 +277,7 @@ class Recipe(object):
 
     def update(self):
         """Updater"""
-        pass
+        return self._install_scripts()
 
 
 CONFIG_TEMPLATE = """
@@ -335,8 +352,7 @@ programs = %(programs)s
 priority = %(priority)s
 """
 
-INCLUDE_TEMPLATE = """                                                                
+INCLUDE_TEMPLATE = """
 [include]
 files = %(stringfiles)s
 """
-

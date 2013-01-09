@@ -1,7 +1,9 @@
 0.19 (unreleased)
 =================
 
-- Nothing changed yet.
+- Fix the dissapearance of dependencies from the picked eggs after the
+  first run of buildout.
+  [afrepues]
 
 
 0.18 (2012-11-16)

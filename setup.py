@@ -66,6 +66,6 @@ setup(name='collective.recipe.supervisor',
                         ],
       tests_require=tests_require,
       extras_require=dict(tests=tests_require),
-      test_suite = 'collective.recipe.supervisor.tests.test_docs.test_suite',
+      test_suite='collective.recipe.supervisor.tests.test_docs.test_suite',
       entry_points=entry_points,
       )
