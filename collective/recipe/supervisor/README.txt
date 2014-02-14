@@ -163,6 +163,15 @@ env-path
     The environment variable PATH, e.g. ``/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin``
 
 
+standalone
+    Boolean value which defaults to true for backwards compatibility.
+
+    If you set this to false, the sections pertaining to running the
+    supervisord, as well as the control interface etc. are not
+    generated, but assumed to already exist.
+
+
+
 Example usage
 =============
 

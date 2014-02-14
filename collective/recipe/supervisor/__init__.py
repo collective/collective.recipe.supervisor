@@ -49,6 +49,13 @@ class Recipe(object):
         umask = self.options.get('umask', '022')
         nodaemon = self.options.get('nodaemon', 'false')
         nocleanup = self.options.get('nocleanup', 'false')
+        # Generate a [supervisord] section? collides with Debian's
+        # configuration mechanism
+        standalone = self.options.get('standalone', 'true')
+        if standalone[0] in "tTyYjJ":
+            standalone = True
+        else:
+            standalone = False
 
         def option_setting(options, key, supervisor_key):
             return options.get(key, False) \
@@ -59,7 +66,9 @@ class Recipe(object):
         supervisord_directory = option_setting(self.options, 'supervisord-directory', 'directory')
         supervisord_environment = option_setting(self.options, 'supervisord-environment', 'environment')
 
-        config_data = CONFIG_TEMPLATE % locals()
+        config_data = ""
+        if standalone is True:
+            config_data = CONFIG_TEMPLATE % locals()
 
         # environment PATH variable
         env_path = self.options.get('env-path', None)
@@ -71,36 +80,37 @@ class Recipe(object):
             if not os.path.isdir(folder):
                 os.makedirs(folder)
 
-        # (unix|inet)_http_server
-        port = self.options.get('port', '127.0.0.1:9001')
-        user = self.options.get('user', '')
-        password = self.options.get('password', '')
-        if 'http' in sections:
+        if standalone is True:
+            # (unix|inet)_http_server
+            port = self.options.get('port', '127.0.0.1:9001')
+            user = self.options.get('user', '')
+            password = self.options.get('password', '')
+            if 'http' in sections:
+                if http_socket == 'inet':
+                    config_data += INET_HTTP_TEMPLATE % locals()
+                elif http_socket == 'unix':
+                    file_ = self.options.get('file', '')
+                    chmod = self.options.get('chmod', '0700')
+                    config_data += UNIX_HTTP_TEMPLATE % locals()
+                else:
+                    raise ValueError("http-socket only supports values inet or unix.")
+
+            # supervisorctl
             if http_socket == 'inet':
-                config_data += INET_HTTP_TEMPLATE % locals()
+                if ':' in port:
+                    default_serverhost = port
+                else:
+                    default_serverhost = 'localhost:%s' % port
+                default_serverhost = 'http://%s' % default_serverhost
             elif http_socket == 'unix':
-                file_ = self.options.get('file', '')
-                chmod = self.options.get('chmod', '0700')
-                config_data += UNIX_HTTP_TEMPLATE % locals()
-            else:
-                raise ValueError("http-socket only supports values inet or unix.")
+                default_serverhost = 'unix://%s' % file_
+            serverurl = self.options.get('serverurl', default_serverhost)
+            if 'ctl' in sections:
+                config_data += CTL_TEMPLATE % locals()
 
-        # supervisorctl
-        if http_socket == 'inet':
-            if ':' in port:
-                default_serverhost = port
-            else:
-                default_serverhost = 'localhost:%s' % port
-            default_serverhost = 'http://%s' % default_serverhost
-        elif http_socket == 'unix':
-            default_serverhost = 'unix://%s' % file_
-        serverurl = self.options.get('serverurl', default_serverhost)
-        if 'ctl' in sections:
-            config_data += CTL_TEMPLATE % locals()
-
-        # rpc
-        if 'rpc' in sections:
-            config_data += RPC_TEMPLATE % locals()
+            # rpc
+            if 'rpc' in sections:
+                config_data += RPC_TEMPLATE % locals()
 
         # programs
         programs = [p for p in self.options.get('programs', '').splitlines() if p]
