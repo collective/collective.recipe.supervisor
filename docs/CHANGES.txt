@@ -1,6 +1,18 @@
 0.20 (unreleased)
 =================
 
+- Fixed tests
+  [agroszer]
+
+- Added travis status badge
+  [agroszer]
+
+- Added ``include`` to documentation.
+  [agroszer]
+
+- Added added ``d_plugins`` and ``ctl_plugins`` options
+  [agroszer]
+
 0.19 (2013-01-09)
 =================
 
@@ -18,13 +30,13 @@
 - Add travis-ci support
   [fredvd]
 
-- Add process options to eventlisteners so you can for example delay them. 
+- Add process options to eventlisteners so you can for example delay them.
   [fredvd]
 
 - Fix doctests, pin supervisor and superlance in the doctests
   [fredvd]
-  
-- Add support for setting user, directory and environment options of 
+
+- Add support for setting user, directory and environment options of
   supervisord
   [anthonygerrard]
 
@@ -93,8 +105,8 @@
 0.9 (2009-11-04)
 ================
 
- - Applied Jonathan Ballet's patch: The generated control script doesn't 
-   automatically connect on the created supervisord when running on a custom port. 
+ - Applied Jonathan Ballet's patch: The generated control script doesn't
+   automatically connect on the created supervisord when running on a custom port.
 
 0.8 (2009-04-27)
 ================
@@ -115,17 +127,17 @@
 0.6 (2008-11-10)
 ================
 
- - One can now specify the user account that will be used as the account 
+ - One can now specify the user account that will be used as the account
    which runs the program.
    [amos]
 
 0.5 (2008-08-23)
 ================
 
- - Adding eventlistners option for use as event notification framework.  
+ - Adding eventlistners option for use as event notification framework.
    Targetting use with supervisor's memmon event listener
    [aburkhalter]
- 
+
 0.4 (2008-06-12)
 ================
 
@@ -141,7 +153,7 @@
 
  - Updated docs and tests
    [mustapha]
- 
+
  - pep8 cosmetics
    [mustapha]
 
@@ -156,7 +168,7 @@
 ================
 
  - Make possible to pass arguments to the command so one can use ctl scripts
-   with supervisor with arguments like 'fg' for zope instances or --no-detach 
+   with supervisor with arguments like 'fg' for zope instances or --no-detach
    or something similar for other programs
    [mustapha]
 

@@ -2,8 +2,8 @@ This recipe when used will do the following:
 
  * install ``supervisor`` and all its dependecies.
 
- * generates the ``supervisord``, ``supervisorctl``, and ``memmon`` scripts in the ``bin`` 
-   directory 
+ * generates the ``supervisord``, ``supervisorctl``, and ``memmon`` scripts in the ``bin``
+   directory
 
  * generates a configuration file to be used by ``supervisord`` and ``supervisorctl``
    scripts
@@ -18,7 +18,16 @@ sections
     Defaults to ``http ctl rpc``
 
 plugins
-    Extra eggs you want the recipe to install, e.g. ``superlance``
+    Extra eggs you want the recipe to install, e.g. ``superlance``,
+    note, these are installed on their own and do not get included in any script
+
+d_plugins
+    Extra eggs you want the recipe to install, added as dependency to the
+    ``supervisord`` script
+
+ctl_plugins
+    Extra eggs you want the recipe to install, added as dependency to the
+    ``supervisorctl`` script, e.g. ``supervisor-quick``
 
 http-socket
     ``inet`` or ``unix`` socket to use for HTTP administration. Defaults to ``inet``.
@@ -41,50 +50,53 @@ password
     The password required for authentication to supervisord
 
 supervisord-conf
-    Full path to where the recipe puts the supervisord configuration file. 
+    Full path to where the recipe puts the supervisord configuration file.
     Defaults to ``${buildout:directory}/parts/${name}/supervisord.conf``
-    
+
 supervisord-user
-    If supervisord is run as the root user, switch users to this UNIX user 
-    account before doing any meaningful processing. This value has no effect 
+    If supervisord is run as the root user, switch users to this UNIX user
+    account before doing any meaningful processing. This value has no effect
     if supervisord is not run as root.
-    
+
 supervisord-directory
-    When supervisord daemonizes, switch to this directory. This option can 
-    include the value ``%(here)s``, which expands to the directory in which the 
+    When supervisord daemonizes, switch to this directory. This option can
+    include the value ``%(here)s``, which expands to the directory in which the
     supervisord configuration file was found.
-    
+
 supervisord-environment
     A list of key/value pairs in the form ``KEY=val,KEY2=val2`` that will be placed
-    in the supervisord process's environment (and as a result in all of its 
+    in the supervisord process's environment (and as a result in all of its
     child processes' environments). This option can include the value ``%(here)s``,
     which expands to the directory in which the supervisord configuration file
     was found. Note that subprocesses will inherit the environment variables of
     the shell used to start supervisord except for the ones overridden here and
     within the program's environment configuration stanza.
 
+include
+    A list of files to add as ``[include]`` supervisord.conf section.
+
 childlogdir
     The full path of the directory where log files of processes managed by
     Supervisor while be stored. Defaults to ``${buildout:directory}/var/log``
 
 logfile
-    The full path to the supervisord log file. Defaults to 
+    The full path to the supervisord log file. Defaults to
     ``${buildout:directory}/var/log/supervisord.log``
 
 pidfile
-    The pid file of supervisord. Defaults to 
+    The pid file of supervisord. Defaults to
     ``${buildout:directory}/var/supervisord.pid``
 
 logfile-maxbytes
-    The maximum number of bytes that may be consumed by the activity log file 
+    The maximum number of bytes that may be consumed by the activity log file
     before it is rotated. Defaults to 50MB.
 
 logfile-backups
-    The number of backups to keep around resulting from activity log file 
+    The number of backups to keep around resulting from activity log file
     rotation. Defaults to 10.
 
 loglevel
-   The logging level. Can be one of ``critical``, ``error``, ``warn``, ``info``, ``debug``, ``trace``, 
+   The logging level. Can be one of ``critical``, ``error``, ``warn``, ``info``, ``debug``, ``trace``,
    or ``blather``. Defaults to ``info``.
 
 umask
@@ -103,18 +115,18 @@ serverurl
    ``http://127.0.0.1:9001``
 
 programs
-   A list of programs you want the supervisord to control. One per line. 
+   A list of programs you want the supervisord to control. One per line.
    The format of a line is as follows::
-   
+
        priority process_name [(process_opts)] command [[args] [directory] [[redirect_stderr]] [user]]
-   
+
    The ``[args]`` are any number of arguments you want to pass to the ``command``.
    It has to be given between ``[]`` (e.g. ``[-v fg]``). See examples below.
    If not given, ``redirect_stderr`` defaults to false.
    If not given, the ``directory`` option defaults to the directory containing the
    the command.
    The optional ``process_opts`` argument sets additional options on the proccess
-   in the supervisord configuration.  
+   in the supervisord configuration.
    It has to be given between ``()`` and must contain options in ``key=value`` format
    with spaces only for separating options -- e.g. ``(autostart=false startsecs=10)``.
    The optional ``user`` argument gives the userid that the process should be run
@@ -126,39 +138,39 @@ programs
 
 eventlisteners
     A list of eventlisteners you'd like supervisord to run as subprocesses to
-    subscribe to event notifications. One per line. Relevant supervisor 
-    documentation about events is at 
+    subscribe to event notifications. One per line. Relevant supervisor
+    documentation about events is at
     http://supervisord.org/events.html ::
-    
+
         processname [(process_opts)] events command [[args]]
-    
-    ``events`` is a comma-separated list (without spaces) of event type names 
+
+    ``events`` is a comma-separated list (without spaces) of event type names
     that the listener is interested in receiving notifications for.
-    
+
     Supervisor provides one event listener called ``memmon`` which can be used to
     restart supervisord child process once they reach a certain memory limit.
     Note that you need to define the variables ``user``, ``password`` and ``serverurl``
     (described in the supported options above) to be able to use the memmon listener.
-    An example of defining a memmon event listener, which analyzes memory usage 
+    An example of defining a memmon event listener, which analyzes memory usage
     every 60 seconds and restarts as needed could look like::
-    
+
        MemoryMonitor TICK_60 ${buildout:bin-directory}/memmon [-p process_name=200MB]
 
     As eventlisteners are a special case of processes, the also accept process
     options. One useful option is to start an eventlistener like the HttpOk
     checker only after your webserver has had time to start and load, say
     after 20 seconds:
-    
+
        HttpOk (startsecs=20) TICK_60 ${buildout:bin-directory}/httpok [-p web -t 20 http://localhost:8080/]
-    
+
 groups
    A list of programs that become part of a group. One per line.
    The format of a line is as follow::
-    
+
        priority group_name program_names
-    
+
    ``programs_name`` is a comma-separated list of program names.
-    
+
 env-path
     The environment variable PATH, e.g. ``/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin``
 
@@ -185,6 +197,8 @@ We'll start by creating a buildout that uses the recipe::
     ... recipe = collective.recipe.supervisor
     ... plugins =
     ...       superlance
+    ... d_plugins = supervisor-quick
+    ... ctl_plugins = supervisor-quick
     ... port = 9001
     ... user = mustapha
     ... password = secret
@@ -203,22 +217,24 @@ We'll start by creating a buildout that uses the recipe::
     ... groups =
     ...       10 services zeo,instance1
     ...       20 others other,other2,other3
-    ... 
+    ... include = ${buildout:directory}/data/our-include.conf
+    ...
     ... [versions]
     ... superlance = 0.6
     ... supervisor = 3.0b1
     ... meld3 = 0.6.9
     ... zc.recipe.egg = 1.3.2
+    ... supervisor-quick = 0.1.0
     ... """)
 
 Chris McDonough said::
 
      Note however that the "instance" script Plone uses to start Zope when
-     passed "fg" appears to use os.system, so the process that supervisor is 
-     controlling isnt actually Plone, it's the controller script. This means 
-     that "stop" and "start" tend to not do what you want. It's far better to 
+     passed "fg" appears to use os.system, so the process that supervisor is
+     controlling isnt actually Plone, it's the controller script. This means
+     that "stop" and "start" tend to not do what you want. It's far better to
      use "runzope", which actually execs the Python process which becomes Zope
-     See also 
+     See also
      http://supervisord.org/subprocess.html#nondaemonizing_of_subprocesses
 
 Running the buildout gives us::
@@ -242,7 +258,7 @@ Check that we have the ``crashmail``, ``memmon`` and ``httpok`` scripts from sup
     -  memmon
     -  supervisorctl
     -  supervisord
-    
+
 
 You can now just run the ``supervisord`` script like this::
 
@@ -286,7 +302,7 @@ Now, have a look at the generated ``supervisord.conf`` file::
     supervisor.rpcinterface_factory=supervisor.rpcinterface:make_main_rpcinterface
     <BLANKLINE>
     [program:zeo]
-    command = /a/b/c/bin/runzeo 
+    command = /a/b/c/bin/runzeo
     process_name = zeo
     directory = /a/b/c
     priority = 10
@@ -294,7 +310,7 @@ Now, have a look at the generated ``supervisord.conf`` file::
     <BLANKLINE>
     <BLANKLINE>
     [program:instance1]
-    command = /e/f/bin/runzope 
+    command = /e/f/bin/runzope
     process_name = instance1
     directory = /e/f
     priority = 20
@@ -302,7 +318,7 @@ Now, have a look at the generated ``supervisord.conf`` file::
     <BLANKLINE>
     <BLANKLINE>
     [program:instance2]
-    command = /g/h/bin/runzope 
+    command = /g/h/bin/runzope
     process_name = instance2
     directory = /g/h/bin
     priority = 30
@@ -310,7 +326,7 @@ Now, have a look at the generated ``supervisord.conf`` file::
     autostart = false
     <BLANKLINE>
     [program:maildrophost]
-    command = /sample-buildout/bin/maildropctl 
+    command = /sample-buildout/bin/maildropctl
     process_name = maildrophost
     directory = /sample-buildout/bin
     priority = 40
@@ -349,7 +365,7 @@ Now, have a look at the generated ``supervisord.conf`` file::
     environment=SUPERVISOR_USERNAME='mustapha',SUPERVISOR_PASSWORD='secret',SUPERVISOR_SERVER_URL='http://supervisor.mustap.com'
     <BLANKLINE>
     [eventlistener:HttpOk]
-    command = /sample-buildout/bin/httpok -p site1 -t 20 http://localhost:8080/
+    command = /sample-buildout/bin/httpok -p instance1 -t 20 http://localhost:8080/
     events = TICK_60
     process_name=HttpOk
     environment=SUPERVISOR_USERNAME='mustapha',SUPERVISOR_PASSWORD='secret',SUPERVISOR_SERVER_URL='http://supervisor.mustap.com'
@@ -362,15 +378,18 @@ Now, have a look at the generated ``supervisord.conf`` file::
     [group:others]
     programs = other,other2,other3
     priority = 20
+    <BLANKLINE>
+    [include]
+    files = /sample-buildout/data/our-include.conf
 
 
-and if we look at generated supervisord script we will see that the 
+and if we look at generated supervisord script we will see that the
 configuration file is given as argument with the ``-c`` option::
 
     >>> cat('bin', 'supervisord')
     #!...
     <BLANKLINE>
-    ...
+    ...supervisor_quick...
     <BLANKLINE>
     import sys; sys.argv.extend(["-c","/sample-buildout/parts/supervisor/supervisord.conf"])
     <BLANKLINE>
@@ -379,13 +398,13 @@ configuration file is given as argument with the ``-c`` option::
     if __name__ == '__main__':
         sys.exit(supervisor.supervisord.main())
 
-The control script contains all specified options, like server url and 
+The control script contains all specified options, like server url and
 username. This allows to run it as is::
 
     >>> cat('bin', 'supervisorctl')
     #!...
     <BLANKLINE>
-    ...
+    ...supervisor_quick...
     <BLANKLINE>
     import sys; sys.argv[1:1] = ["-c","/sample-buildout/parts/supervisor/supervisord.conf"]
     <BLANKLINE>

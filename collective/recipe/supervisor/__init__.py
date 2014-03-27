@@ -55,9 +55,12 @@ class Recipe(object):
                 and ('%s = %s' % (supervisor_key, options.get(key))) \
                 or ''
 
-        supervisord_user = option_setting(self.options, 'supervisord-user', 'user')
-        supervisord_directory = option_setting(self.options, 'supervisord-directory', 'directory')
-        supervisord_environment = option_setting(self.options, 'supervisord-environment', 'environment')
+        supervisord_user = option_setting(
+            self.options, 'supervisord-user', 'user')
+        supervisord_directory = option_setting(
+            self.options, 'supervisord-directory', 'directory')
+        supervisord_environment = option_setting(
+            self.options, 'supervisord-environment', 'environment')
 
         config_data = CONFIG_TEMPLATE % locals()
 
@@ -83,7 +86,8 @@ class Recipe(object):
                 chmod = self.options.get('chmod', '0700')
                 config_data += UNIX_HTTP_TEMPLATE % locals()
             else:
-                raise ValueError("http-socket only supports values inet or unix.")
+                raise ValueError(
+                    "http-socket only supports values inet or unix.")
 
         # supervisorctl
         if http_socket == 'inet':
@@ -103,7 +107,8 @@ class Recipe(object):
             config_data += RPC_TEMPLATE % locals()
 
         # programs
-        programs = [p for p in self.options.get('programs', '').splitlines() if p]
+        programs = [
+            p for p in self.options.get('programs', '').splitlines() if p]
         pattern = re.compile("(?P<priority>\d+)"
                              "\s+"
                              "(?P<processname>[^\s]+)"
@@ -136,20 +141,19 @@ class Recipe(object):
                         extras.append("%s = %s" % (key, value))
 
             config_data += PROGRAM_TEMPLATE % \
-                           dict(program = parts.get('processname'),
-                                command = parts.get('command'),
-                                priority = parts.get('priority'),
-                                redirect_stderr = parts.get('redirect') or \
-                                                  'false',
-                                directory = parts.get('directory') or \
-                                         os.path.dirname(parts.get('command')),
-                                args = parts.get('args') or '',
-                                extra_config = "\n".join(extras),
+                           dict(program=parts.get('processname'),
+                                command=parts.get('command'),
+                                priority=parts.get('priority'),
+                                redirect_stderr=parts.get('redirect') or 'false',
+                                directory=parts.get('directory') or \
+                                          os.path.dirname(parts.get('command')),
+                                args=parts.get('args') or '',
+                                extra_config="\n".join(extras),
                            )
 
         # eventlisteners
-        eventlisteners = [e for e in self.options.get('eventlisteners', '').splitlines()
-                            if e]
+        eventlisteners = [
+            e for e in self.options.get('eventlisteners', '').splitlines() if e]
 
         pattern = re.compile("(?P<processname>[^\s]+)"
                              "(\s+\((?P<processopts>([^\)]+))\))?"
@@ -162,7 +166,8 @@ class Recipe(object):
         for eventlistener in eventlisteners:
             match = pattern.match(eventlistener)
             if not match:
-                raise ValueError("Event Listeners line incorrect: %s" % eventlistener)
+                raise ValueError("Event Listeners line incorrect: %s" %
+                                 eventlistener)
 
             parts = match.groupdict()
             process_options = parts.get('processopts')
@@ -177,14 +182,14 @@ class Recipe(object):
                         extras.append("%s = %s" % (key, value))
 
             config_data += EVENTLISTENER_TEMPLATE % \
-                           dict(name = parts.get('processname'),
-                                events = parts.get('events'),
-                                command = parts.get('command'),
-                                args = parts.get('args'),
-                                user = user,
-                                password = password,
-                                serverurl = serverurl,
-                                extra_config = "\n".join(extras),
+                           dict(name=parts.get('processname'),
+                                events=parts.get('events'),
+                                command=parts.get('command'),
+                                args=parts.get('args'),
+                                user=user,
+                                password=password,
+                                serverurl=serverurl,
+                                extra_config="\n".join(extras),
                            )
 
         # groups
@@ -204,18 +209,16 @@ class Recipe(object):
             parts = match.groupdict()
 
             config_data += GROUP_TEMPLATE % \
-                           dict(priority = parts.get('priority'),
-                                group = parts.get('group'),
-                                programs = parts.get('programs'),
+                           dict(priority=parts.get('priority'),
+                                group=parts.get('group'),
+                                programs=parts.get('programs'),
                            )
 
         # include
         files = [f for f in self.options.get('include', '').splitlines() if f]
         if files:
             stringfiles = " ".join(files)
-            config_data += INCLUDE_TEMPLATE % \
-                           dict(stringfiles=stringfiles,
-                                )
+            config_data += INCLUDE_TEMPLATE % dict(stringfiles=stringfiles)
 
         conf_file = self.options.get('supervisord-conf')
 
@@ -229,12 +232,17 @@ class Recipe(object):
     def _install_scripts(self):
         conf_file = self.options.get('supervisord-conf')
 
+        plugins = self.options.get('d_plugins', '')
+        if plugins:
+            plugins = '\n' + plugins
+        eggs = 'supervisor' + plugins
+
         init_stmt = 'import sys; sys.argv.extend(["-c","%s"])' % \
             (conf_file,)
         dscript = zc.recipe.egg.Egg(
             self.buildout,
             self.name,
-            {'eggs': 'supervisor',
+            {'eggs': eggs,
              'scripts': 'supervisord=%sd' % self.name,
              'initialization': init_stmt,
              })
@@ -246,12 +254,17 @@ class Recipe(object):
              'scripts': 'memmon=memmon',
              })
 
+        plugins = self.options.get('ctl_plugins', '')
+        if plugins:
+            plugins = '\n' + plugins
+        eggs = 'supervisor' + plugins
+
         init_stmt = 'import sys; sys.argv[1:1] = ["-c","%s"]' % \
             (conf_file,)
         ctlscript = zc.recipe.egg.Egg(
             self.buildout,
             self.name,
-            {'eggs': 'supervisor',
+            {'eggs': eggs,
              'scripts': 'supervisorctl=%sctl' % self.name,
              'initialization': init_stmt,
              'arguments': 'sys.argv[1:]',
