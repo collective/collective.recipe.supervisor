@@ -45,6 +45,8 @@ class Recipe(object):
         http_socket = self.options.get('http-socket', 'inet')
         logfile_maxbytes = self.options.get('logfile-maxbytes', '50MB')
         logfile_backups = self.options.get('logfile-backups', '10')
+        childstdout_maxbytes = self.options.get('childstdout-logfile-maxbytes', None)
+        childstderr_maxbytes = self.options.get('childstderr-logfile-maxbytes', None)
         loglevel = self.options.get('loglevel', 'info')
         umask = self.options.get('umask', '022')
         nodaemon = self.options.get('nodaemon', 'false')
@@ -55,9 +57,12 @@ class Recipe(object):
                 and ('%s = %s' % (supervisor_key, options.get(key))) \
                 or ''
 
-        supervisord_user = option_setting(self.options, 'supervisord-user', 'user')
-        supervisord_directory = option_setting(self.options, 'supervisord-directory', 'directory')
-        supervisord_environment = option_setting(self.options, 'supervisord-environment', 'environment')
+        supervisord_user = option_setting(
+            self.options, 'supervisord-user', 'user')
+        supervisord_directory = option_setting(
+            self.options, 'supervisord-directory', 'directory')
+        supervisord_environment = option_setting(
+            self.options, 'supervisord-environment', 'environment')
 
         config_data = CONFIG_TEMPLATE % locals()
 
@@ -83,7 +88,8 @@ class Recipe(object):
                 chmod = self.options.get('chmod', '0700')
                 config_data += UNIX_HTTP_TEMPLATE % locals()
             else:
-                raise ValueError("http-socket only supports values inet or unix.")
+                raise ValueError(
+                    "http-socket only supports values inet or unix.")
 
         # supervisorctl
         if http_socket == 'inet':
@@ -98,22 +104,45 @@ class Recipe(object):
         if 'ctl' in sections:
             config_data += CTL_TEMPLATE % locals()
 
+            ctlplugins = [c for c in self.options.get('ctlplugins', '').splitlines() if c]
+            pattern = re.compile(r"(?P<name>[^\s]+)"
+                                 r"\s+"
+                                 r"(?P<callable>[^\s]+)")
+            for ctlplugin in ctlplugins:
+                match = pattern.match(ctlplugin)
+                if not match:
+                    raise ValueError("CTL plugins line incorrect: %s" % ctlplugin)
+
+                config_data += CTLPLUGIN_TEMPLATE % match.groupdict()
+
         # rpc
         if 'rpc' in sections:
             config_data += RPC_TEMPLATE % locals()
 
+            rpcplugins = [r for r in self.options.get('rpcplugins', '').splitlines() if r]
+            pattern = re.compile(r"(?P<name>[^\s]+)"
+                                 r"\s+"
+                                 r"(?P<callable>[^\s]+)")
+            for rpcplugin in rpcplugins:
+                match = pattern.match(rpcplugin)
+                if not match:
+                    raise ValueError("RPC plugins line incorrect: %s" % rpcplugin)
+
+                config_data += RPC_EXTRA_TEMPLATE % match.groupdict()
+
         # programs
-        programs = [p for p in self.options.get('programs', '').splitlines() if p]
-        pattern = re.compile("(?P<priority>\d+)"
-                             "\s+"
-                             "(?P<processname>[^\s]+)"
-                             "(\s+\((?P<processopts>([^\)]+))\))?"
-                             "\s+"
-                             "(?P<command>[^\s]+)"
-                             "(\s+\[(?P<args>(?!true|false)[^\]]+)\])?"
-                             "(\s+(?P<directory>(?!true|false)[^\s]+))?"
-                             "(\s+(?P<redirect>(true|false)))?"
-                             "(\s+(?P<user>[^\s]+))?")
+        programs = [
+            p for p in self.options.get('programs', '').splitlines() if p]
+        pattern = re.compile(r"(?P<priority>\d+)"
+                             r"\s+"
+                             r"(?P<processname>[^\s]+)"
+                             r"(\s+\((?P<processopts>([^\)]+))\))?"
+                             r"\s+"
+                             r"(?P<command>[^\s]+)"
+                             r"(\s+\[(?P<args>(?!true|false)[^\]]+)\])?"
+                             r"(\s+(?P<directory>(?!true|false)[^\s]+))?"
+                             r"(\s+(?P<redirect>(true|false)))?"
+                             r"(\s+(?P<user>[^\s]+))?")
 
         for program in programs:
             match = pattern.match(program)
@@ -124,6 +153,7 @@ class Recipe(object):
             program_user = parts.get('user')
             process_options = parts.get('processopts')
             extras = []
+            extra_keys = []
 
             if program_user:
                 extras.append('user = %s' % program_user)
@@ -134,35 +164,40 @@ class Recipe(object):
                     (key, value) = part.split('=', 1)
                     if key and value:
                         extras.append("%s = %s" % (key, value))
+                        extra_keys.append(key)
+            for key, value in (('stdout_logfile_maxbytes', childstdout_maxbytes),
+                               ('stderr_logfile_maxbytes', childstderr_maxbytes)):
+                if value and key not in extra_keys:
+                    extras.append( "%s = %s" % (key, value))
 
             config_data += PROGRAM_TEMPLATE % \
-                           dict(program = parts.get('processname'),
-                                command = parts.get('command'),
-                                priority = parts.get('priority'),
-                                redirect_stderr = parts.get('redirect') or \
-                                                  'false',
-                                directory = parts.get('directory') or \
-                                         os.path.dirname(parts.get('command')),
-                                args = parts.get('args') or '',
-                                extra_config = "\n".join(extras),
+                           dict(program=parts.get('processname'),
+                                command=parts.get('command'),
+                                priority=parts.get('priority'),
+                                redirect_stderr=parts.get('redirect') or 'false',
+                                directory=parts.get('directory') or \
+                                          os.path.dirname(parts.get('command')),
+                                args=parts.get('args') or '',
+                                extra_config="\n".join(extras),
                            )
 
         # eventlisteners
-        eventlisteners = [e for e in self.options.get('eventlisteners', '').splitlines()
-                            if e]
+        eventlisteners = [
+            e for e in self.options.get('eventlisteners', '').splitlines() if e]
 
-        pattern = re.compile("(?P<processname>[^\s]+)"
-                             "(\s+\((?P<processopts>([^\)]+))\))?"
-                             "\s+"
-                             "(?P<events>[^\s]+)"
-                             "\s+"
-                             "(?P<command>[^\s]+)"
-                             "(\s+\[(?P<args>[^\]]+)\])?")
+        pattern = re.compile(r"(?P<processname>[^\s]+)"
+                             r"(\s+\((?P<processopts>([^\)]+))\))?"
+                             r"\s+"
+                             r"(?P<events>[^\s]+)"
+                             r"\s+"
+                             r"(?P<command>[^\s]+)"
+                             r"(\s+\[(?P<args>[^\]]+)\])?")
 
         for eventlistener in eventlisteners:
             match = pattern.match(eventlistener)
             if not match:
-                raise ValueError("Event Listeners line incorrect: %s" % eventlistener)
+                raise ValueError("Event Listeners line incorrect: %s" %
+                                 eventlistener)
 
             parts = match.groupdict()
             process_options = parts.get('processopts')
@@ -177,24 +212,24 @@ class Recipe(object):
                         extras.append("%s = %s" % (key, value))
 
             config_data += EVENTLISTENER_TEMPLATE % \
-                           dict(name = parts.get('processname'),
-                                events = parts.get('events'),
-                                command = parts.get('command'),
-                                args = parts.get('args'),
-                                user = user,
-                                password = password,
-                                serverurl = serverurl,
-                                extra_config = "\n".join(extras),
+                           dict(name=parts.get('processname'),
+                                events=parts.get('events'),
+                                command=parts.get('command'),
+                                args=parts.get('args'),
+                                user=user,
+                                password=password,
+                                serverurl=serverurl,
+                                extra_config="\n".join(extras),
                            )
 
         # groups
         groups = [g for g in self.options.get('groups', '').splitlines() if g]
 
-        pattern = re.compile("(?P<priority>\d+)"
-                             "\s+"
-                             "(?P<group>[^\s]+)"
-                             "\s+"
-                             "(?P<programs>[^\s]+)")
+        pattern = re.compile(r"(?P<priority>\d+)"
+                             r"\s+"
+                             r"(?P<group>[^\s]+)"
+                             r"\s+"
+                             r"(?P<programs>[^\s]+)")
 
         for group in groups:
             match = pattern.match(group)
@@ -204,37 +239,41 @@ class Recipe(object):
             parts = match.groupdict()
 
             config_data += GROUP_TEMPLATE % \
-                           dict(priority = parts.get('priority'),
-                                group = parts.get('group'),
-                                programs = parts.get('programs'),
+                           dict(priority=parts.get('priority'),
+                                group=parts.get('group'),
+                                programs=parts.get('programs'),
                            )
 
         # include
         files = [f for f in self.options.get('include', '').splitlines() if f]
         if files:
             stringfiles = " ".join(files)
-            config_data += INCLUDE_TEMPLATE % \
-                           dict(stringfiles=stringfiles,
-                                )
+            config_data += INCLUDE_TEMPLATE % dict(stringfiles=stringfiles)
 
         conf_file = self.options.get('supervisord-conf')
 
         if not os.path.exists(os.path.dirname(conf_file)):
             os.makedirs(os.path.dirname(conf_file))
 
-        open(conf_file, 'w').write(config_data)
+        with open(conf_file, 'w') as f:
+			f.write(config_data)
 
         return self._install_scripts()
 
     def _install_scripts(self):
         conf_file = self.options.get('supervisord-conf')
 
+        plugins = self.options.get('d_plugins', '')
+        if plugins:
+            plugins = '\n' + plugins
+        eggs = 'supervisor' + plugins
+
         init_stmt = 'import sys; sys.argv.extend(["-c","%s"])' % \
             (conf_file,)
         dscript = zc.recipe.egg.Egg(
             self.buildout,
             self.name,
-            {'eggs': 'supervisor',
+            {'eggs': eggs,
              'scripts': 'supervisord=%sd' % self.name,
              'initialization': init_stmt,
              })
@@ -246,12 +285,17 @@ class Recipe(object):
              'scripts': 'memmon=memmon',
              })
 
+        plugins = self.options.get('ctl_plugins', '')
+        if plugins:
+            plugins = '\n' + plugins
+        eggs = 'supervisor' + plugins
+
         init_stmt = 'import sys; sys.argv[1:1] = ["-c","%s"]' % \
             (conf_file,)
         ctlscript = zc.recipe.egg.Egg(
             self.buildout,
             self.name,
-            {'eggs': 'supervisor',
+            {'eggs': eggs,
              'scripts': 'supervisorctl=%sctl' % self.name,
              'initialization': init_stmt,
              'arguments': 'sys.argv[1:]',
@@ -325,6 +369,16 @@ chmod = %(chmod)s
 RPC_TEMPLATE = """
 [rpcinterface:supervisor]
 supervisor.rpcinterface_factory=supervisor.rpcinterface:make_main_rpcinterface
+"""
+
+RPC_EXTRA_TEMPLATE = """
+[rpcinterface:%(name)s]
+supervisor.rpcinterface_factory=%(callable)s
+"""
+
+CTLPLUGIN_TEMPLATE = """
+[ctlplugin:%(name)s]
+supervisor.ctl_factory = %(callable)s
 """
 
 PROGRAM_TEMPLATE = """

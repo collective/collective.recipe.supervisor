@@ -4,11 +4,12 @@ Doctest runner for 'collective.recipe.supervisor'.
 """
 __docformat__ = 'restructuredtext'
 
+import doctest
 import unittest
 import zc.buildout.tests
 import zc.buildout.testing
 
-from zope.testing import doctest, renormalizing
+from zope.testing import renormalizing
 
 optionflags = (doctest.ELLIPSIS |
                doctest.NORMALIZE_WHITESPACE |

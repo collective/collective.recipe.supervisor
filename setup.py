@@ -4,11 +4,13 @@ This module contains the tool of collective.recipe.supervisor
 """
 
 import os
+import codecs
 from setuptools import setup, find_packages
 
 
 def read(*rnames):
-    return open(os.path.join(os.path.dirname(__file__), *rnames)).read()
+    with codecs.open(os.path.join(os.path.dirname(__file__), *rnames), 'rU', encoding='utf-8') as f:
+        return f.read()
 
 version = '0.20dev'
 
@@ -36,7 +38,8 @@ long_description = (
 entry_point = 'collective.recipe.supervisor:Recipe'
 entry_points = {"zc.buildout": ["default = %s" % entry_point]}
 
-tests_require = ['zope.testing']
+tests_require = ['zope.testing',
+                 'zc.buildout [test]']
 
 setup(name='collective.recipe.supervisor',
       version=version,
@@ -49,6 +52,13 @@ setup(name='collective.recipe.supervisor',
         'Topic :: Software Development :: Build Tools',
         'Topic :: Software Development :: Libraries :: Python Modules',
         'License :: OSI Approved :: Zope Public License',
+        'Programming Language :: Python :: 2',
+        'Programming Language :: Python :: 2.6',
+        'Programming Language :: Python :: 2.7',
+        'Programming Language :: Python :: Implementation :: CPython',
+        'Programming Language :: Python :: Implementation :: PyPy',
+        'Natural Language :: English',
+        'Operating System :: OS Independent',
         ],
       keywords='buildout recipe supervisor',
       author='Mustapha Benali',
