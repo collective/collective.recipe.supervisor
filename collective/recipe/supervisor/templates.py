@@ -40,6 +40,7 @@ file = %(file)s
 username = %(user)s
 password = %(password)s
 chmod = %(chmod)s
+%(chown)s
 
 """
 
