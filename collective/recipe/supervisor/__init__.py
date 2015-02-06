@@ -298,7 +298,7 @@ class Recipe(object):
              })
         installed += list(memscript.install())
 
-        init_stmt = 'import sys; sys.argv[1:1] = ["-c", "[0]"]'.format(
+        init_stmt = 'import sys; sys.argv[1:1] = ["-c", "{0}"]'.format(
             conf_file
         )
         if 'ctl' in self._sections:
