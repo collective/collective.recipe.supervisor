@@ -4,6 +4,9 @@ Change history
 0.20 (unreleased)
 =================
 
+- fix: memscript install script did not get conf file because of a typo.
+  [moriyoshi]
+
 - Feature: exclude global configuration so the generated file can be used
   to be included by a system wide supervisord.
   [jensens]
