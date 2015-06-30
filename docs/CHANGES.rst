@@ -4,6 +4,10 @@ Change history
 0.20 (unreleased)
 =================
 
+- Fix tests to be able to run.
+  Fixes https://github.com/collective/collective.recipe.supervisor/issues/10
+  [gforcada]
+
 - fix: memscript install script did not get conf file because of a typo.
   [moriyoshi]
 
