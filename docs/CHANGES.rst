@@ -1,7 +1,7 @@
 Change history
 **************
 
-0.20 (unreleased)
+0.20 (2015-10-06)
 =================
 
 - Fix tests to be able to run.
