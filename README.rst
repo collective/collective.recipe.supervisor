@@ -15,13 +15,11 @@ Detailed Documentation
 
 This recipe when used will do the following:
 
- * install ``supervisor`` and all its dependecies.
+* install ``supervisor`` and all its dependecies.
 
- * generates the ``supervisord``, ``supervisorctl``, and ``memmon`` scripts in the ``bin``
-   directory
+* generates the ``supervisord``, ``supervisorctl``, and ``memmon`` scripts in the ``bin`` directory
 
- * generates a configuration file to be used by ``supervisord`` and ``supervisorctl``
-   scripts
+* generates a configuration file to be used by ``supervisord`` and ``supervisorctl`` scripts
 
 Supported options
 =================
