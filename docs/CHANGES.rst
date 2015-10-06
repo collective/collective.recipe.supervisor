@@ -1,6 +1,12 @@
 Change history
 **************
 
+0.21 (unreleased)
+=================
+
+- Nothing changed yet.
+
+
 0.20 (2015-10-06)
 =================
 
