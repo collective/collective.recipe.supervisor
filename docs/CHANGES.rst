@@ -25,6 +25,7 @@ Change history
   testrunner
   [jensens]
 
+
 0.19 (2013-01-09)
 =================
 
@@ -35,6 +36,7 @@ Change history
 - Fix e-mail address in project history file, somehow it was wrong, oh
   well.
   [afrepues]
+
 
 0.18 (2012-11-16)
 =================
@@ -52,10 +54,12 @@ Change history
   supervisord
   [anthonygerrard]
 
+
 0.17 (2011-07-28)
 ====================
 - Added support for process groups
   [nueces]
+
 
 0.16 (2011-03-07)
 =================
@@ -63,11 +67,13 @@ Change history
 - Fix supervisorctl to use unix_http_server if used
   [Domen Kožar, NiteoWeb. Work sponsored by Hexagon IT]
 
+
 0.15 (2011-03-05)
 =================
 
 - Added support for unix_http_server additionally to inet_http_server
   [Domen Kožar, NiteoWeb. Work sponsored by Hexagon IT]
+
 
 0.14 (2010-12-10)
 =================
@@ -80,11 +86,13 @@ Change history
    file. Because of bug 180705 of zc.buildout, scripts are made
    world-readable. [afrepues@mcmaster.ca]
 
+
 0.13 (2010-12-07)
 =================
 
  - 'nocleanup' option of Supervisor is now configurable from Buildout
    Patch from Damien Letournel
+
 
 0.12 (2010-08-04)
 =================
@@ -92,6 +100,7 @@ Change history
  - Quote the environment variables that are written in the supervisor
    configuration file for eventlisteners, otherwise supervisor will not pass
    them on correctly to for example memmon [Fred van Dijk]
+
 
 0.11 (2010-08-02)
 =================
@@ -103,10 +112,12 @@ Change history
    See http://supervisord.org/configuration.html#include
    [ycadour]
 
+
 0.10.1 (2010-07-27)
 ===================
 
 - Updated documentation about how to use the memmon event listener [lucielejard]
+
 
 0.10 (2010-06-03)
 =================
@@ -123,11 +134,13 @@ Change history
  - Applied Jonathan Ballet's patch: The generated control script doesn't
    automatically connect on the created supervisord when running on a custom port.
 
+
 0.8 (2009-04-27)
 ================
 
  - Make it possible to set additional options per process in the control script.
    [nkryptic]
+
 
 0.7 (2009-01-27)
 ================
@@ -139,6 +152,7 @@ Change history
 
  - Updated tests
 
+
 0.6 (2008-11-10)
 ================
 
@@ -146,12 +160,14 @@ Change history
    which runs the program.
    [amos]
 
+
 0.5 (2008-08-23)
 ================
 
  - Adding eventlistners option for use as event notification framework.
    Targetting use with supervisor's memmon event listener
    [aburkhalter]
+
 
 0.4 (2008-06-12)
 ================
@@ -179,6 +195,7 @@ Change history
    control script. This allows to run it as is.
    [hannosch]
 
+
 0.2 (2008-04-23)
 ================
 
@@ -189,6 +206,7 @@ Change history
 
  - updated tests
    [mustapha]
+
 
 0.1 (2008-04-21)
 ================
