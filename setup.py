@@ -9,7 +9,8 @@ import os
 
 
 def read(*rnames):
-    return open(os.path.join(os.path.dirname(__file__), *rnames)).read()
+    path = os.path.join(os.path.dirname(__file__), *rnames)
+    return open(path, 'rb').read().decode('utf-8')
 
 version = '0.21.dev0'
 
