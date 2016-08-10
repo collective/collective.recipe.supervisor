@@ -80,3 +80,13 @@ INCLUDE = """
 [include]
 files = %(stringfiles)s
 """
+
+RPC_EXTRA_TEMPLATE = """
+[rpcinterface:%(name)s]
+supervisor.rpcinterface_factory=%(callable)s
+"""
+
+CTLPLUGIN_TEMPLATE = """
+[ctlplugin:%(name)s]
+supervisor.ctl_factory = %(callable)s
+"""

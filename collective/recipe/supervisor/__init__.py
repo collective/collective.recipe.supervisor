@@ -144,9 +144,32 @@ class Recipe(object):
             # supervisorctl
             config_data += templates.CTL % param
 
+            ctlplugins = [c for c in self.options.get('ctlplugins', '').splitlines() if c]
+            pattern = re.compile("(?P<name>[^\s]+)"
+                                 "\s+"
+                                 "(?P<callable>[^\s]+)")
+            for ctlplugin in ctlplugins:
+                match = pattern.match(ctlplugin)
+                if not match:
+                    raise ValueError("CTL plugins line incorrect: %s" % ctlplugin)
+
+                config_data += templates.CTLPLUGIN_TEMPLATE % match.groupdict()
+
         # rpc
         if 'rpc' in self._sections:
             config_data += templates.RPC
+
+            rpcplugins = [r for r in self.options.get('rpcplugins', '').splitlines() if r]
+            pattern = re.compile("(?P<name>[^\s]+)"
+                                 "\s+"
+                                 "(?P<callable>[^\s]+)")
+            for rpcplugin in rpcplugins:
+                match = pattern.match(rpcplugin)
+                if not match:
+                    raise ValueError("RPC plugins line incorrect: %s" % rpcplugin)
+
+                config_data += templates.RPC_EXTRA_TEMPLATE % match.groupdict()
+
 
         # programs
         programs = [p for p in self.options.get('programs', '').splitlines()
@@ -284,11 +307,22 @@ class Recipe(object):
         init_stmt = 'import sys; sys.argv.extend(["-c","{0}"])'.format(
             conf_file
         )
+
+        #install extra eggs if any
+        plugins = self.options.get('plugins', '')
+        if plugins:
+            pluginsscript = zc.recipe.egg.Egg(
+                self.buildout,
+                self.name,
+                {'eggs': plugins}
+            )
+            installed += list(pluginsscript.install())
+
         if 'global' in self._sections:
             dscript = zc.recipe.egg.Egg(
                 self.buildout,
                 self.name,
-                {'eggs': 'supervisor',
+                {'eggs': '\n'.join(['supervisor', plugins]),
                  'scripts': 'supervisord=%sd' % self.name,
                  'initialization': init_stmt,
                  })
@@ -297,7 +331,7 @@ class Recipe(object):
         memscript = zc.recipe.egg.Egg(
             self.buildout,
             self.name,
-            {'eggs': 'supervisor',
+            {'eggs': '\n'.join(['supervisor', plugins]),
              'scripts': 'memmon=memmon',
              })
         installed += list(memscript.install())
@@ -309,22 +343,12 @@ class Recipe(object):
             ctlscript = zc.recipe.egg.Egg(
                 self.buildout,
                 self.name,
-                {'eggs': 'supervisor',
+                {'eggs': '\n'.join(['supervisor', plugins]),
                  'scripts': 'supervisorctl=%sctl' % self.name,
                  'initialization': init_stmt,
                  'arguments': 'sys.argv[1:]',
                  })
             installed += list(ctlscript.install())
-
-        #install extra eggs if any
-        plugins = self.options.get('plugins', '')
-        if plugins:
-            pluginsscript = zc.recipe.egg.Egg(
-                self.buildout,
-                self.name,
-                {'eggs': plugins}
-            )
-            installed += list(pluginsscript.install())
 
         installed += [conf_file]
         return installed
