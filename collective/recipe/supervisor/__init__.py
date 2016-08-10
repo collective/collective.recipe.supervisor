@@ -49,6 +49,10 @@ class Recipe(object):
         param['port'] = self.options.get('port', '127.0.0.1:9001')
         param['file'] = self.options.get('file', '')
         param['chmod'] = self.options.get('chmod', '0700')
+        if self.options.get('chown'):
+            param['chown'] = 'chown = %s' % self.options['chown']
+        else:
+            param['chown'] = ''
 
         http_socket = self.options.get('http-socket', 'inet')
         host_default = param['port']
