@@ -4,6 +4,8 @@ Change history
 0.21 (unreleased)
 =================
 
+- Improved code quality, fixing flake8 warning 'W605 invalid escape sequence' for regular expressions.  [maurits]
+
 - Support the ``chown`` option in the ``unix_http_server`` section.  [guewen]
 
 - Tested with Python 2.7, 3.6, 3.7.  [davidweterings, maurits]

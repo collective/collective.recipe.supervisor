@@ -145,16 +145,16 @@ class Recipe(object):
             p for p in self.options.get('programs', '').splitlines() if p
         ]
         pattern = re.compile(
-            "(?P<priority>\d+)"
-            "\s+"
-            "(?P<processname>[^\s]+)"
-            "(\s+\((?P<processopts>([^\)]+))\))?"
-            "\s+"
-            "(?P<command>[^\s]+)"
-            "(\s+\[(?P<args>(?!true|false)[^\]]+)\])?"
-            "(\s+(?P<directory>(?!true|false)[^\s]+))?"
-            "(\s+(?P<redirect>(true|false)))?"
-            "(\s+(?P<user>[^\s]+))?"
+            r"(?P<priority>\d+)"
+            r"\s+"
+            r"(?P<processname>[^\s]+)"
+            r"(\s+\((?P<processopts>([^\)]+))\))?"
+            r"\s+"
+            r"(?P<command>[^\s]+)"
+            r"(\s+\[(?P<args>(?!true|false)[^\]]+)\])?"
+            r"(\s+(?P<directory>(?!true|false)[^\s]+))?"
+            r"(\s+(?P<redirect>(true|false)))?"
+            r"(\s+(?P<user>[^\s]+))?"
         )
 
         if "services" in self._sections:
@@ -194,13 +194,13 @@ class Recipe(object):
 
             # eventlisteners
             pattern = re.compile(
-                "(?P<processname>[^\s]+)"
-                "(\s+\((?P<processopts>([^\)]+))\))?"
-                "\s+"
-                "(?P<events>[^\s]+)"
-                "\s+"
-                "(?P<command>[^\s]+)"
-                "(\s+\[(?P<args>[^\]]+)\])?"
+                r"(?P<processname>[^\s]+)"
+                r"(\s+\((?P<processopts>([^\)]+))\))?"
+                r"\s+"
+                r"(?P<events>[^\s]+)"
+                r"\s+"
+                r"(?P<command>[^\s]+)"
+                r"(\s+\[(?P<args>[^\]]+)\])?"
             )
 
             ev_lines = self.options.get('eventlisteners', '').splitlines()
@@ -241,11 +241,11 @@ class Recipe(object):
             ]
 
             pattern = re.compile(
-                "(?P<priority>\d+)"
-                "\s+"
-                "(?P<group>[^\s]+)"
-                "\s+"
-                "(?P<programs>[^\s]+)"
+                r"(?P<priority>\d+)"
+                r"\s+"
+                r"(?P<group>[^\s]+)"
+                r"\s+"
+                r"(?P<programs>[^\s]+)"
             )
 
             for group in groups:
