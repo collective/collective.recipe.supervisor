@@ -4,7 +4,9 @@ Change history
 0.21 (unreleased)
 =================
 
-- Nothing changed yet.
+- Support the ``chown`` option in the ``unix_http_server`` section.  [guewen]
+
+- Tested with Python 2 and 3.  [davidweterings]
 
 
 0.20 (2015-10-06)
