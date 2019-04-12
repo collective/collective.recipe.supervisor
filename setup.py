@@ -8,16 +8,16 @@ from setuptools import setup
 import os
 
 
-def read(*rnames):
-    path = os.path.join(os.path.dirname(__file__), *rnames)
-    return open(path, 'rb').read().decode('utf-8')
+def read(path):
+    with open(path, 'rb') as filepath:
+        return filepath.read().decode('utf-8')
 
 version = '0.21.dev0'
 
 long_description = (
     read('README.rst') + '\n\n' +
-    read('docs', 'CHANGES.rst') + '\n\n' +
-    read('docs', 'CONTRIBUTORS.rst')
+    read('CHANGES.rst') + '\n\n' +
+    read('CONTRIBUTORS.rst')
 )
 
 entry_point = 'collective.recipe.supervisor:Recipe'
