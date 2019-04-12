@@ -1,3 +1,3 @@
-include *.cfg *.rst 
-graft docs
+include *.cfg *.rst *.txt
 graft collective
+global-exclude *.pyc *.pyo

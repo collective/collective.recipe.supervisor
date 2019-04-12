@@ -43,6 +43,10 @@ file
 chmod
     Change the UNIX permission mode bits of the UNIX domain socket to this value at startup.
 
+chown
+    Change the ownership of the UNIX domain socket to this value at startup.
+    Either ``user`` or ``user:group``.
+
 port
     The port number ``supervisord`` listens to, e.g. ``9001``. Can be given as ``host:port``, e.g.
     ``127.0.0.1:9001``. Defaults to ``127.0.0.1:9001``

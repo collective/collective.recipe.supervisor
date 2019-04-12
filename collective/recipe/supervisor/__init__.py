@@ -8,9 +8,11 @@ import zc.recipe.egg
 
 
 def option_setting(options, key, supervisor_key):
-    return options.get(key, False) \
-        and ('%s = %s' % (supervisor_key, options.get(key))) \
+    return (
+        options.get(key, False)
+        and ('%s = %s' % (supervisor_key, options.get(key)))
         or ''
+    )
 
 
 class Recipe(object):
@@ -24,7 +26,7 @@ class Recipe(object):
                 self.buildout['buildout']['parts-directory'],
                 self.name,
                 'supervisord.conf',
-                )
+            )
 
     @property
     def _sections(self):
@@ -69,15 +71,13 @@ class Recipe(object):
             # supervisord service
             param['logfile'] = self.options.get(
                 'logfile',
-                os.path.join(buildout_dir, 'var', 'log', 'supervisord.log')
+                os.path.join(buildout_dir, 'var', 'log', 'supervisord.log'),
             )
             param['pidfile'] = self.options.get(
-                'pidfile',
-                os.path.join(buildout_dir, 'var', 'supervisord.pid')
+                'pidfile', os.path.join(buildout_dir, 'var', 'supervisord.pid')
             )
             param['childlogdir'] = self.options.get(
-                'childlogdir',
-                os.path.join(buildout_dir, 'var', 'log')
+                'childlogdir', os.path.join(buildout_dir, 'var', 'log')
             )
             if not os.path.isdir(param['childlogdir']):
                 os.makedirs(param['childlogdir'])
@@ -95,12 +95,10 @@ class Recipe(object):
                 os.makedirs(param['pid_dir'])
 
             param['logfile_maxbytes'] = self.options.get(
-                'logfile-maxbytes',
-                '50MB'
+                'logfile-maxbytes', '50MB'
             )
             param['logfile_backups'] = self.options.get(
-                'logfile-backups',
-                '10'
+                'logfile-backups', '10'
             )
             param['loglevel'] = self.options.get('loglevel', 'info')
             param['umask'] = self.options.get('umask', '022')
@@ -108,19 +106,13 @@ class Recipe(object):
             param['nocleanup'] = self.options.get('nocleanup', 'false')
 
             param['supervisord_user'] = option_setting(
-                self.options,
-                'supervisord-user',
-                'user'
+                self.options, 'supervisord-user', 'user'
             )
             param['supervisord_directory'] = option_setting(
-                self.options,
-                'supervisord-directory',
-                'directory'
+                self.options, 'supervisord-directory', 'directory'
             )
             param['supervisord_environment'] = option_setting(
-                self.options,
-                'supervisord-environment',
-                'environment'
+                self.options, 'supervisord-environment', 'environment'
             )
             config_data += templates.GLOBAL % param
 
@@ -149,18 +141,21 @@ class Recipe(object):
             config_data += templates.RPC
 
         # programs
-        programs = [p for p in self.options.get('programs', '').splitlines()
-                    if p]
-        pattern = re.compile("(?P<priority>\d+)"
-                             "\s+"
-                             "(?P<processname>[^\s]+)"
-                             "(\s+\((?P<processopts>([^\)]+))\))?"
-                             "\s+"
-                             "(?P<command>[^\s]+)"
-                             "(\s+\[(?P<args>(?!true|false)[^\]]+)\])?"
-                             "(\s+(?P<directory>(?!true|false)[^\s]+))?"
-                             "(\s+(?P<redirect>(true|false)))?"
-                             "(\s+(?P<user>[^\s]+))?")
+        programs = [
+            p for p in self.options.get('programs', '').splitlines() if p
+        ]
+        pattern = re.compile(
+            r"(?P<priority>\d+)"
+            r"\s+"
+            r"(?P<processname>[^\s]+)"
+            r"(\s+\((?P<processopts>([^\)]+))\))?"
+            r"\s+"
+            r"(?P<command>[^\s]+)"
+            r"(\s+\[(?P<args>(?!true|false)[^\]]+)\])?"
+            r"(\s+(?P<directory>(?!true|false)[^\s]+))?"
+            r"(\s+(?P<redirect>(true|false)))?"
+            r"(\s+(?P<user>[^\s]+))?"
+        )
 
         if "services" in self._sections:
             for program in programs:
@@ -188,21 +183,25 @@ class Recipe(object):
                     command=parts.get('command'),
                     priority=parts.get('priority'),
                     redirect_stderr=parts.get('redirect') or 'false',
-                    directory=(parts.get('directory') or
-                               os.path.dirname(parts.get('command'))),
+                    directory=(
+                        parts.get('directory')
+                        or os.path.dirname(parts.get('command'))
+                    ),
                     args=parts.get('args') or '',
                     extra_config="\n".join(extras),
                 )
                 config_data += templates.PROGRAM % tpl_parameters
 
             # eventlisteners
-            pattern = re.compile("(?P<processname>[^\s]+)"
-                                 "(\s+\((?P<processopts>([^\)]+))\))?"
-                                 "\s+"
-                                 "(?P<events>[^\s]+)"
-                                 "\s+"
-                                 "(?P<command>[^\s]+)"
-                                 "(\s+\[(?P<args>[^\]]+)\])?")
+            pattern = re.compile(
+                r"(?P<processname>[^\s]+)"
+                r"(\s+\((?P<processopts>([^\)]+))\))?"
+                r"\s+"
+                r"(?P<events>[^\s]+)"
+                r"\s+"
+                r"(?P<command>[^\s]+)"
+                r"(\s+\[(?P<args>[^\]]+)\])?"
+            )
 
             ev_lines = self.options.get('eventlisteners', '').splitlines()
             eventlisteners = [e for e in ev_lines if e]
@@ -237,14 +236,17 @@ class Recipe(object):
                 config_data += templates.EVENTLISTENER % ev_params
 
             # groups
-            groups = [g for g in self.options.get('groups', '').splitlines()
-                      if g]
+            groups = [
+                g for g in self.options.get('groups', '').splitlines() if g
+            ]
 
-            pattern = re.compile("(?P<priority>\d+)"
-                                 "\s+"
-                                 "(?P<group>[^\s]+)"
-                                 "\s+"
-                                 "(?P<programs>[^\s]+)")
+            pattern = re.compile(
+                r"(?P<priority>\d+)"
+                r"\s+"
+                r"(?P<group>[^\s]+)"
+                r"\s+"
+                r"(?P<programs>[^\s]+)"
+            )
 
             for group in groups:
                 match = pattern.match(group)
@@ -261,8 +263,9 @@ class Recipe(object):
                 config_data += templates.GROUP % tpl_parameters
 
             # include
-            files = [f for f in self.options.get('include', '').splitlines()
-                     if f]
+            files = [
+                f for f in self.options.get('include', '').splitlines() if f
+            ]
             if files:
                 stringfiles = " ".join(files)
                 config_data += templates.INCLUDE % {'stringfiles': stringfiles}
@@ -288,18 +291,19 @@ class Recipe(object):
             dscript = zc.recipe.egg.Egg(
                 self.buildout,
                 self.name,
-                {'eggs': 'supervisor',
-                 'scripts': 'supervisord=%sd' % self.name,
-                 'initialization': init_stmt,
-                 })
+                {
+                    'eggs': 'supervisor',
+                    'scripts': 'supervisord=%sd' % self.name,
+                    'initialization': init_stmt,
+                },
+            )
             installed = list(dscript.install())
 
         memscript = zc.recipe.egg.Egg(
             self.buildout,
             self.name,
-            {'eggs': 'supervisor',
-             'scripts': 'memmon=memmon',
-             })
+            {'eggs': 'supervisor', 'scripts': 'memmon=memmon'},
+        )
         installed += list(memscript.install())
 
         init_stmt = 'import sys; sys.argv[1:1] = ["-c", "{0}"]'.format(
@@ -309,20 +313,20 @@ class Recipe(object):
             ctlscript = zc.recipe.egg.Egg(
                 self.buildout,
                 self.name,
-                {'eggs': 'supervisor',
-                 'scripts': 'supervisorctl=%sctl' % self.name,
-                 'initialization': init_stmt,
-                 'arguments': 'sys.argv[1:]',
-                 })
+                {
+                    'eggs': 'supervisor',
+                    'scripts': 'supervisorctl=%sctl' % self.name,
+                    'initialization': init_stmt,
+                    'arguments': 'sys.argv[1:]',
+                },
+            )
             installed += list(ctlscript.install())
 
-        #install extra eggs if any
+        # install extra eggs if any
         plugins = self.options.get('plugins', '')
         if plugins:
             pluginsscript = zc.recipe.egg.Egg(
-                self.buildout,
-                self.name,
-                {'eggs': plugins}
+                self.buildout, self.name, {'eggs': plugins}
             )
             installed += list(pluginsscript.install())
 

@@ -1,11 +1,17 @@
+dist: xenial   # required for Python >= 3.7
 language: python
 python:
-  - "2.6"
   - "2.7"
-  - "3.3"
-  - "3.4"
-  - "3.5"
+  - "3.6"
+  - "3.7"
 install:
-  - python bootstrap.py
-  - ./bin/buildout
-script: ./bin/test
+  - virtualenv .
+  - bin/pip install -r requirements.txt
+  - bin/buildout
+script:
+# The test actually is empty at the moment.
+  - ./bin/test
+# But buildout has installed a really basic supervisor that we should be able to use.
+  - ./bin/supervisord
+  - ./bin/supervisorctl status
+  - ./bin/supervisorctl shutdown
