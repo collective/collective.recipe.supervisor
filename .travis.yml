@@ -6,4 +6,10 @@ python:
 install:
   - pip install -r requirements.txt
   - buildout
-script: ./bin/test
+script:
+# The test actually is empty at the moment.
+  - ./bin/test
+# But buildout has installed a really basic supervisor that we should be able to use.
+  - ./bin/supervisord
+  - ./bin/supervisorctl status
+  - ./bin/supervisorctl shutdown
