@@ -13,7 +13,7 @@ def read(path):
         return filepath.read().decode('utf-8')
 
 
-version = '1.0.0.dev0'
+version = '1.0.0'
 
 long_description = (
     read('README.rst')

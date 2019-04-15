@@ -1,7 +1,7 @@
 Change history
 **************
 
-1.0.0 (unreleased)
+1.0.0 (2019-04-15)
 ==================
 
 - Improved code quality, fixing flake8 warning 'W605 invalid escape sequence' for regular expressions.  [maurits]
