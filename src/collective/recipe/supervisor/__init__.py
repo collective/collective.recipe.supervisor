@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """Recipe supervisor"""
 from collective.recipe.supervisor import templates
 
@@ -15,7 +14,7 @@ def option_setting(options, key, supervisor_key):
     )
 
 
-class Recipe(object):
+class Recipe:
     """zc.buildout recipe"""
 
     def __init__(self, buildout, name, options):

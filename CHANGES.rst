@@ -4,7 +4,8 @@ Change history
 1.0.1 (unreleased)
 ==================
 
-- Nothing changed yet.
+- Dropped Python 2 and dist xenial.
+  [szakitibi]
 
 
 1.0.0 (2019-04-15)

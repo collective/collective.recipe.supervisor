@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 Doctest runner for 'collective.recipe.supervisor'.
 """

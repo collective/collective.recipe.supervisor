@@ -1,16 +1,13 @@
-# -*- coding: utf-8 -*-
 """
 This module contains the tool of collective.recipe.supervisor
 """
 from setuptools import find_packages
 from setuptools import setup
 
-import os
-
 
 def read(path):
-    with open(path, 'rb') as filepath:
-        return filepath.read().decode('utf-8')
+    with open(path, encoding='utf-8') as filepath:
+        return filepath.read()
 
 
 version = '1.0.1.dev0'
@@ -40,14 +37,15 @@ setup(
         'Intended Audience :: Developers',
         'License :: OSI Approved :: Zope Public License',
         'Programming Language :: Python',
-        'Programming Language :: Python :: 2',
-        'Programming Language :: Python :: 2.7',
         'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.6',
-        'Programming Language :: Python :: 3.7',
+        'Programming Language :: Python :: 3.10',
+        'Programming Language :: Python :: 3.11',
+        'Programming Language :: Python :: 3.12',
+        'Programming Language :: Python :: 3.13',
         'Topic :: Software Development :: Build Tools',
         'Topic :: Software Development :: Libraries :: Python Modules',
     ],
+    python_requires='>=3.10',
     keywords='buildout recipe supervisor',
     author='Mustapha Benali',
     author_email='mustapha@headnet.dk',
