@@ -23,7 +23,10 @@ long_description = (
 entry_point = 'collective.recipe.supervisor:Recipe'
 entry_points = {"zc.buildout": ["default = %s" % entry_point]}
 
-tests_require = ['zc.buildout[test]']
+tests_require = [
+    'zc.buildout[test]',
+    'zope.testrunner',
+]
 
 setup(
     name='collective.recipe.supervisor',
