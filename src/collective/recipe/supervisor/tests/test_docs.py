@@ -5,10 +5,11 @@ __docformat__ = 'restructuredtext'
 
 import doctest
 import unittest
-import zc.buildout.tests
-import zc.buildout.testing
 
+import zc.buildout.testing
+import zc.buildout.tests
 from zope.testing import renormalizing
+
 
 optionflags = (
     doctest.ELLIPSIS

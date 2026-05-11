@@ -1,15 +1,16 @@
 """Recipe supervisor"""
-from collective.recipe.supervisor import templates
-
 import os
 import re
+
 import zc.recipe.egg
+
+from collective.recipe.supervisor import templates
 
 
 def option_setting(options, key, supervisor_key):
     return (
         options.get(key, False)
-        and ('%s = %s' % (supervisor_key, options.get(key)))
+        and (f'{supervisor_key} = {options.get(key)}')
         or ''
     )
 
@@ -59,8 +60,8 @@ class Recipe:
         host_default = param['port']
         if http_socket == 'inet':
             if ':' not in host_default:
-                host_default = 'localhost:{0}'.format(host_default)
-            host_default = 'http://{0}'.format(host_default)
+                host_default = f'localhost:{host_default}'
+            host_default = f'http://{host_default}'
         elif http_socket == 'unix':
             host_default = 'unix://%s' % param['file']
 
@@ -175,7 +176,7 @@ class Recipe:
                             continue
                         (key, value) = part.split('=', 1)
                         if key and value:
-                            extras.append("%s = %s" % (key, value))
+                            extras.append(f"{key} = {value}")
 
                 tpl_parameters = dict(
                     program=parts.get('processname'),
@@ -209,7 +210,7 @@ class Recipe:
                 match = pattern.match(eventlistener)
                 if not match:
                     raise ValueError(
-                        "Event Listeners line incorrect: {0}".format(
+                        "Event Listeners line incorrect: {}".format(
                             eventlistener
                         )
                     )
@@ -224,7 +225,7 @@ class Recipe:
                             continue
                         (key, value) = part.split('=', 1)
                         if key and value:
-                            extras.append("%s = %s" % (key, value))
+                            extras.append(f"{key} = {value}")
                 ev_params = dict(**param)
                 ev_params['name'] = parts.get('processname')
                 ev_params['events'] = parts.get('events')
@@ -283,7 +284,7 @@ class Recipe:
         installed = []
         conf_file = self.options.get('supervisord-conf')
 
-        init_stmt = 'import sys; sys.argv.extend(["-c","{0}"])'.format(
+        init_stmt = 'import sys; sys.argv.extend(["-c","{}"])'.format(
             conf_file
         )
         if 'global' in self._sections:
@@ -305,7 +306,7 @@ class Recipe:
         )
         installed += list(memscript.install())
 
-        init_stmt = 'import sys; sys.argv[1:1] = ["-c", "{0}"]'.format(
+        init_stmt = 'import sys; sys.argv[1:1] = ["-c", "{}"]'.format(
             conf_file
         )
         if 'ctl' in self._sections:

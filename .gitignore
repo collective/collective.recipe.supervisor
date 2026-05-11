@@ -1,30 +1,33 @@
-*.py[co]
-
-# Packages
-*.egg
-*.egg-info
-/dist/
-/build/
-/eggs/
-/parts/
-/bin/
-/var/
-/sdist/
-/develop-eggs/
-/lib/
-/local/
-/include/
-.installed.cfg
-
-# Installer logs
-pip-log.txt
-
-# Unit test / coverage reports
+# Generated from:
+# https://github.com/zopefoundation/meta/tree/master/config/buildout-recipe
+*.dll
+*.egg-info/
+*.profraw
+*.pyc
+*.pyo
+*.so
 .coverage
-.tox
-
-#Translations
-*.mo
-
-#Mr Developer
+.coverage.*
+.eggs/
+.installed.cfg
 .mr.developer.cfg
+.tox/
+.vscode/
+__pycache__/
+bin/
+build/
+coverage.xml
+develop-eggs/
+develop/
+dist/
+docs/_build
+eggs/
+etc/
+lib/
+lib64
+log/
+parts/
+pyvenv.cfg
+testing.log
+var/
+venv/

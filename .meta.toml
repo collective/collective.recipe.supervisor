@@ -1,0 +1,16 @@
+# Generated from:
+# https://github.com/zopefoundation/meta/tree/master/config/buildout-recipe
+[meta]
+template = "buildout-recipe"
+commit-id = "7f1f27d6"
+
+[python]
+with-sphinx-doctests = false
+with-docs = false
+with-future-python = false
+with-pypy = false
+with-macos = false
+with-windows = false
+
+[coverage]
+fail-under = 0
