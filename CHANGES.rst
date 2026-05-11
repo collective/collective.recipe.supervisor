@@ -4,9 +4,10 @@ Change history
 1.0.1 (unreleased)
 ==================
 
-- Dropped Python 2 and dist xenial.
+- Drop support for Python 2 and Python 3 versions older than 3.10.
+- Configure with zope.meta.
+- Switch to PEP 420 native namespace packages.
   [szakitibi]
-
 
 1.0.0 (2019-04-15)
 ==================
