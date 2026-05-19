@@ -14,5 +14,5 @@ Contributors
 - Juan A. Diaz (nueces), Contributor
 - Fred van Dijk (fredvd), Contributor
 - Jens W. Klein (jensens), Contributor
-
-
+- Maurits van Rees (mauritsvanrees), Contributor
+- szakitibi, Contributor
