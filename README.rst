@@ -2,12 +2,7 @@
 install supervisord and generate its configuration
 **************************************************
 
-|buildstatus|_
-
 .. contents::
-
-.. |buildstatus| image:: https://api.travis-ci.org/collective/collective.recipe.supervisor.png?branch=master
-.. _buildstatus: https://travis-ci.org/collective/collective.recipe.supervisor
 
 Detailed Documentation
 **********************
