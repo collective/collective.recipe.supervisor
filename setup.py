@@ -1,7 +1,6 @@
 """
 This module contains the tool of collective.recipe.supervisor
 """
-from setuptools import find_namespace_packages
 from setuptools import setup
 
 
@@ -55,8 +54,6 @@ setup(
     author_email='mustapha@headnet.dk',
     url='https://github.com/collective/collective.recipe.supervisor/',
     license='ZPL',
-    packages=find_namespace_packages('src'),
-    package_dir={'': 'src'},
     include_package_data=True,
     zip_safe=False,
     install_requires=[
