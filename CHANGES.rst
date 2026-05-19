@@ -1,7 +1,7 @@
 Change history
 **************
 
-1.0.1 (unreleased)
+2.0.0 (unreleased)
 ==================
 
 - Drop support for Python 2 and Python 3 versions older than 3.10.

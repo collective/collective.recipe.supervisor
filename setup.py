@@ -10,7 +10,7 @@ def read(path):
         return filepath.read()
 
 
-version = '1.0.1.dev0'
+version = '2.0.0.dev0'
 
 long_description = (
     read('README.rst')
